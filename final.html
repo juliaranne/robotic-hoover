@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>Tray test</title>
+</head>
+<body>
+  <h3>Patches cleaned: <span id="result"></span></h3>
+  <script>
+
+    var moves;
+    var dirt;
+    var roomGrid = [];
+    var cleaned = 0;
+    var hooverX;
+    var hooverY;
+    var position;
+
+    fetch('input.txt')
+      .then(response => response.text())
+      // .then(text => console.log(text))
+      .then(function(data){
+
+        data = data.split( "\n" );
+        for (var i=0; i<data.length; i += 1){
+          data[i] = data[i].split(' ');
+        }
+
+        moves = data[data.length - 1];
+        moves = moves.toString();
+
+        var data = dataToNumber(data);
+
+        hooverX = data[1][0];
+        hooverY = data[1][1];
+        
+        dirt = data.slice(2, data.length);
+
+        buildRoom();
+        
+    });
+
+    function dataToNumber(data){
+        var numberArray = [];
+        for (var i=0; i<data.length-1; i += 1){
+          numberArray.push(data[i].map(Number));  
+        }
+        return numberArray; 
+    }
+
+    function buildRoom(){
+      var item = 0;
+      var row = [];
+
+      for (var i = 0; i < 5; i += 1){
+        row.push(item);
+        roomGrid.push(row);
+      }
+      placeDirt();
+    }
+  	
+    function placeDirt(){
+      for (var j=0; j < dirt.length; j+= 1){
+        dirtX = dirt[j][0];
+        dirtY = dirt[j][1];
+        roomGrid[dirtX][dirtY] = 1; 
+      }
+      moveHoover();
+    }
+    
+    function cleanUp(newPosition){
+        if (newPosition === 1){
+          roomGrid[hooverX][hooverY] = 0;
+          cleaned += 1;
+        }
+        console.log(hooverX, hooverY);
+        console.log(cleaned);
+        var result = document.getElementById('result');
+        result.innerHTML = cleaned; 
+    }
+
+    function moveHoover(){
+
+      for (var i = 0; i < moves.length; i+= 1){
+
+          var character = moves.charAt(i);
+
+          if (character === 'N'){
+            hooverY += 1;
+            if (hooverY >= 5){
+              hooverY -= 1;
+            }
+            position = roomGrid[hooverX][hooverY];
+            cleanUp(position);
+          }
+          if (character === 'S'){
+            hooverY -= 1;
+            if (hooverY <= 0){
+              hooverY += 1;
+            }
+            position = roomGrid[hooverX][hooverY];
+            cleanUp(position);
+          }
+          if (character === 'E'){
+            hooverX += 1;
+            if (hooverX >= 5){
+              hooverX -= 1;
+            }
+            position = roomGrid[hooverX][hooverY];
+            cleanUp(position);
+          }
+          if (character === 'W'){
+            hooverX -= 1;
+            if (hooverX <= 0){
+              hooverX += 1;
+            }
+            position = roomGrid[hooverX][hooverY];
+            cleanUp(position);
+          }
+      }
+    }
+
+  </script>
+</body>
+</html>
